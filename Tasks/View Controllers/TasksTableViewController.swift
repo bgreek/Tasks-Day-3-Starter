@@ -13,6 +13,10 @@ class TasksTableViewController: UITableViewController {
     
     // MARK: Properties
     
+    let taskController = TaskController()
+    
+    // If you have a fetchedResultsController that uses the sectionNameKeyPath to provide sections, you MUST have the first sort descriptor of the fetch request have the key for the same key path as the sections
+    
     lazy var fetchedResultsController: NSFetchedResultsController<Task> = {
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "priority", ascending: true),
@@ -62,6 +66,13 @@ class TasksTableViewController: UITableViewController {
         }
     }
         
+    @IBAction func refresh(_ sender: Any) {
+        taskController.fetchTasksFromServer() { (_) in
+            // normally handles the resuly argument 
+            
+            self.refreshControl?.endRefreshing()
+        }
+    }
     // MARK: - Navigation
     
     // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -70,6 +81,12 @@ class TasksTableViewController: UITableViewController {
             if let detailVC = segue.destination as? TaskDetailViewController,
                 let indexPath = tableView.indexPathForSelectedRow {
                 detailVC.task = fetchedResultsController.object(at: indexPath)
+                detailVC.taskController = taskController
+            }
+        } else if segue.identifier == "CreateTaskModalSegue" {
+                if let navC = segue.destination as? UINavigationController,
+                    let createTaskVC = navC.viewControllers.first as? CreateTaskViewController {
+                    createTaskVC.taskController = taskController
             }
         }
     }

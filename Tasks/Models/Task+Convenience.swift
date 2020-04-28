@@ -30,4 +30,36 @@ extension Task {
         self.complete = complete
         self.priority = priority.rawValue
     }
+    
+    @discardableResult convenience init?(taskRepresentation: TaskRepresentation, context: NSManagedObjectContext = CoreDataStack.shared.mainContext) {
+        
+        guard let priority = TaskPriority(rawValue: taskRepresentation.priority),
+            let identifier = UUID(uuidString: taskRepresentation.identifier) else {
+                return nil
+        }
+        
+        self.init(identifier: identifier,
+                  name: taskRepresentation.name,
+                  notes: taskRepresentation.notes,
+                  complete: taskRepresentation.complete,
+                  priority: priority,
+                  context: context)
+    }
+    
+    // The way we convert our Task into a TaskRepresentation to be coded and sent to a remote server.
+    
+    var taskRepresentation: TaskRepresentation? {
+        
+        guard let name = name,
+            let priority = priority else { return nil }
+        
+        let id = identifier ?? UUID()
+        
+        return TaskRepresentation(complete: complete,
+                                  identifier: id.uuidString,
+                                  name: name,
+                                  notes: notes,
+                                  priority: priority)
+        
+    }
 }

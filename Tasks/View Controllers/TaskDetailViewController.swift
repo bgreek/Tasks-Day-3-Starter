@@ -14,6 +14,7 @@ class TaskDetailViewController: UIViewController {
     
     var task: Task?
     var wasEdited = false
+    var taskController: TaskController?
     
     // MARK: - Outlets
 
@@ -46,7 +47,7 @@ class TaskDetailViewController: UIViewController {
             task.notes = notes
             let priorityIndex = priorityControl.selectedSegmentIndex
             task.priority = TaskPriority.allCases[priorityIndex].rawValue
-            
+            taskController?.put(task: task, completion: { _ in })
             do {
                 try CoreDataStack.shared.mainContext.save()
             } catch {
